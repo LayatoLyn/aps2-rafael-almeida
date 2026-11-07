@@ -7,3 +7,5 @@ Quando o algoritmo identifica um comportamento anormal fora do padrao, ele envia
 que registra as informações no TimescaleDB. Em seguida, o Grafana apresenta o alerta em seu dashboard, permitindo que os responsáveis 
 acompanhem os problemas e realizem manutenções preventivas. Dessa forma, o sistema ajuda a identificar possíveis falhas antecipadamente, 
 reduzindo o risco de paradas inesperadas nas máquinas.
+
+PS:(Não consegui subir as imagens dos diagramas no readme, então adicionei uma pasta com as imagens dos diagramas)
