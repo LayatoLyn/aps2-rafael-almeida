@@ -1,0 +1,21 @@
+MQTT - Ele faz o envio das informações de temperatura e vibração
+Kafka Consumer - Encaminha as telemetrias para os topicos Kafka
+Kafka Producer - Publica os enventos de anomalias indentificados
+Kafka Consumer - Entrega os eventos que precisam gerar alertas
+PostgreSQL Wire Protocol - Armazenamento dos alertas e seus dados
+PostgreSQL Wire Protocol - Consulta dos alertas e dados hitoricos
+HTTPS - Acesso aos dashboards e visualização dos alertas
+
+Protocolos:
+
+MQTT: Utilizado na comicação entre os sesores e o EMQX. Funcional para 
+dispositivos que nescessitam enviar pequenas quantidades de dados frequentemente.
+
+Kafka Protocol: Utilizado na comicação entre os serviços e o Apache Kafka. Ele
+permite publicar e consumir mensagens de forma assincrona, evitando a nescessidade 
+dos componentes se comunicarem diretamente.
+
+PostgreSQL Wire Protocol: Protocolo usado para a comunicação com o TImescaleDB. Permite
+que o gerenciador de alertas armazene informações e que o Grafana consulte os registros.
+
+HTTPS: Permite que o operador acesse o Grafana de maneira segura por meio do navegador

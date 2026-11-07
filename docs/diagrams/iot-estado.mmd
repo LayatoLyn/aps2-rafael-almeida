@@ -1,0 +1,45 @@
+stateDiagram-v2
+    direction TB
+
+    [*] --> EsperaAlerta
+
+    EsperaAlerta --> RecebeAlerta : AnomaliaDetectada() [anomalia = true] / receberDados()
+
+    RecebeAlerta --> ValidandoAlerta : DadosRecebidos() [dados != nulos] / validarDados()
+
+    RecebeAlerta --> AlertaInvalido : DadosRecebidos() [dados = nulos] / registrarErro()
+
+    ValidandoAlerta --> AlertaValido : ValidacaoConcluida() [valido = true] / criarAlertaDTO()
+
+    ValidandoAlerta --> AlertaInvalido : ValidacaoConcluida() [valido = false] / registrarErro()
+
+    state AlertaValido {
+        [*] --> PreparandoAlerta
+        PreparandoAlerta : entry / definirNivelRisco()
+        PreparandoAlerta : do / prepararInformacoes()
+        PreparandoAlerta : exit / finalizarPreparacao()
+    }
+
+    AlertaValido --> SalvandoAlerta : EnviarParaBanco() / salvarAlerta()
+
+    SalvandoAlerta --> AlertaArmazenado : GravacaoConcluida() [sucesso = true] / confirmarArmazenamento()
+
+    SalvandoAlerta --> ErroPersistencia : GravacaoConcluida() [sucesso = false] / registrarFalha()
+
+    AlertaArmazenado --> NotificandoGrafana : EnviarNotificacao() [destinoDisponivel = true] / publicarAlerta()
+
+    NotificandoGrafana --> AlertaExibido : ConfirmacaoRecebida() [sucesso = true] / atualizarDashboard()
+
+    NotificandoGrafana --> ErroNotificacao : FalhaNaNotificacao() / registrarErroNotificacao()
+
+    ErroPersistencia --> SalvandoAlerta : NovaTentativa() [tentativas < 3] / repetirGravacao()
+
+    ErroNotificacao --> NotificandoGrafana : NovaTentativa() [tentativas < 3] / reenviarNotificacao()
+
+    ErroPersistencia --> AlertaNaoProcessado : LimiteAtingido() [tentativas >= 3] / registrarFalhaDefinitiva()
+
+    ErroNotificacao --> AlertaNaoProcessado : LimiteAtingido() [tentativas >= 3] / registrarFalhaDefinitiva()
+
+    AlertaInvalido --> [*]
+    AlertaExibido --> [*]
+    AlertaNaoProcessado --> [*]

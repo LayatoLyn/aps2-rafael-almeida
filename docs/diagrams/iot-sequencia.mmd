@@ -1,0 +1,34 @@
+sequenceDiagram
+autonumber
+participant Sensor as Sensor IoT
+participant EMQX as EMQX (MQTT)
+participant Kafka as Apache Kafka
+participant Analisador as AnalisadorPreditivo
+participant Alerta as GerenciadorAlerta
+participant DB as TimescaleDB
+participant Grafana as Grafana
+
+Sensor-)EMQX: publicaTelemetria(TelemetriaDTO)
+EMQX-)Kafka: encaminhaTelemetria(TelemetriaDTO)
+Kafka->>Analisador: analisaTelemetria(TelemetriaDTO)
+Analisador->>Analisador: verificaAnomalia()
+
+alt Anomalia identificada
+    Analisador-->>Alerta: gerarAlerta(AlertaDTO)
+    Alerta->>DB: salvarAlerta(AlertaDTO)
+    DB-->>Alerta: ResultadoOperacaoDTO
+
+    alt Alerta salvo com sucesso
+        Alerta-)Grafana: notificaAlerta(AlertaDTO)
+        Grafana->>Grafana: atualizaDashboard()
+
+    else Erro ao salvar alerta
+        Alerta-->>Analisador: ErroPersistenciaDTO
+    end
+
+else Nenhuma anomalia identificada
+    Analisador->>DB: salvarelemetria(TelemetriaDTO)
+    DB-->>Analisador: ResultadoOperacaoDTO
+end
+
+Analisador-->>Kafka: ResultadoAnaliseDTO

@@ -1,0 +1,34 @@
+C4Container
+    title C4 - Nivel 2: Notificação de Alertas e Detecção de Anomalias
+
+    Person(operador, "Operador", "Acompanha os alertas e o estado das máquinas.")
+
+    System_Boundary(sistema, "Sistema de Monitoramento IoT") {
+
+        Container(emqx, "EMQX", "MQTT Broker", "Recebe os dados de temperatura e vibração dos sensores.")
+
+        Container(kafka, "Apache Kafka", "Event Streaming", "Distribui telemetrias e eventos de anomalia por tópicos.")
+
+        Container(analisador, "Analisador Preditivo", "Serviço de análise", "Analisa os dados dos sensores e identifica possíveis anomalias.")
+
+        Container(gerenciador, "Gerenciador de Alertas", "Serviço de aplicação", "Valida as anomalias, gera alertas e registra suas informações.")
+
+        ContainerDb(timescale, "TimescaleDB", "PostgreSQL + TimescaleDB", "Armazena telemetrias e histórico de alertas.")
+
+        Container(grafana, "Grafana", "Dashboard", "Consulta os dados e apresenta os alertas ao operador.")
+    }
+
+    Rel(operador, grafana, "Visualiza alertas", "HTTPS")
+
+    Rel(emqx, kafka, "Publica telemetrias", "Kafka Protocol / TCP")
+
+    Rel(kafka, analisador, "Entrega telemetrias", "Kafka Consumer Protocol")
+
+    Rel(analisador, kafka, "Publica eventos de anomalia", "Kafka Producer Protocol")
+
+    Rel(kafka, gerenciador, "Entrega eventos de anomalia", "Kafka Consumer Protocol")
+
+    Rel(gerenciador, timescale, "Armazena alertas", "PostgreSQL Wire Protocol / TCP")
+
+    Rel(grafana, timescale, "Consulta alertas e históricos", "PostgreSQL Wire Protocol / TCP")
+

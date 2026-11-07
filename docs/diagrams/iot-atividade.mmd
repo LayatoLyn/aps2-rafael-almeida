@@ -1,0 +1,50 @@
+flowchart TB
+
+    subgraph R1["RAIA 2 - Analisador Preditivo"]
+        E[Encaminhar telemetria pelo Kafka]
+        F[Receber dados para análise]
+        G[Analisar temperatura e vibração]
+        H{Anomalia identificada?}
+        I[Gerar informações da anomalia]
+        J[Classificar nível de risco]
+        K[Registrar resultado sem anomalia]
+    end
+
+    subgraph R3["RAIA 3 - Gerenciador de Alertas e TimescaleDB"]
+        L[Preparar AlertaDTO]
+        M[Salvar alerta no TimescaleDB]
+        N{Gravação realizada?}
+        O[Registrar falha de persistência]
+        P[Salvar telemetria no TimescaleDB]
+    end
+
+    subgraph R4["RAIA 4 - Grafana"]
+        Q[Enviar notificação de alerta]
+        R[Atualizar dashboard]
+        S[Exibir dados normais]
+        T([Fim])
+    end
+
+    E --> F
+    F --> G
+    G --> H
+
+    H -->|Sim: anomalia = true| I
+    H -->|Não: anomalia = false| K
+
+    I --> J
+    J --> L
+    L --> M
+    M --> N
+
+    N -->|Sucesso: gravação = true| Q
+    N -->|Falha: gravação = false| O
+
+    Q --> R
+    R --> T
+
+    O --> T
+
+    K --> P
+    P --> S
+    S --> T
